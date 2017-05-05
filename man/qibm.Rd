@@ -2,7 +2,7 @@
 % Please edit documentation in R/qibm.R
 \name{qibm}
 \alias{qibm}
-\title{Quantitative imaging biomarker model}
+\title{Quantitative Imaging Biomarker Model}
 \usage{
 qibm(fixed, image, operator, data, priors = list(), parameters = c("mu",
   "sigma.opr", "sigma.imgopr", "sigma.err"), n.burnin = 2500,
@@ -34,8 +34,8 @@ vector of biomarker measurements, or a transformation thereof, and
 \item{seed}{numeric random number generator seed.}
 }
 \value{
-An \code{\link[coda]{mcmc.list}} object containing the MCMC sampled
-  model parameter values.
+A \code{qibm} object that inherits from \code{\link[coda]{mcmc.list}} and
+  contains the MCMC sampled model parameter values.
 }
 \description{
 \code{qibm} is used to fit a Bayesian measurement error model for the 

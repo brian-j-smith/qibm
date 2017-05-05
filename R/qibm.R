@@ -1,4 +1,4 @@
-#' Quantitative imaging biomarker model
+#' Quantitative Imaging Biomarker Model
 #' 
 #' \code{qibm} is used to fit a Bayesian measurement error model for the 
 #' comparison of biomarker measurements derived from different quantitative
@@ -18,8 +18,8 @@
 #' @param n.chains number of parallel MCMC chains to generate.
 #' @param seed numeric random number generator seed.
 #' 
-#' @return An \code{\link[coda]{mcmc.list}} object containing the MCMC sampled
-#'   model parameter values.
+#' @return A \code{qibm} object that inherits from \code{\link[coda]{mcmc.list}} and
+#'   contains the MCMC sampled model parameter values.
 
 qibm <- function(fixed, image, operator, data, priors = list(),
                  parameters = c("mu", "sigma.opr", "sigma.imgopr", "sigma.err"),

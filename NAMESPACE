@@ -1,4 +1,4 @@
-import("coda", "rjags")
+import("coda", "methods", "rjags")
 
 importFrom("plyr", ".", "ddply", "summarize")
 importFrom("Hmisc", "rcorr.cens")
@@ -6,4 +6,24 @@ importFrom("magrittr", "%>%")
 importFrom("mvtnorm", "rmvnorm")
 
 
-exportPattern("^[[:alpha:]]+")
+export(
+  "qibm"
+)
+
+exportClasses(
+  "qibm",
+  "qibmSample"
+)
+
+exportMethods(
+  "transform",
+  "Bias",
+  "CIndex",
+  "Cor",
+  "GOF",
+  "ICC",
+  "RC",
+  "RDC",
+  "wCV",
+  "LRM"
+)
