@@ -1,9 +1,9 @@
 import("coda", "methods", "rjags")
 
-importFrom("plyr", ".", "ddply", "summarize")
 importFrom("Hmisc", "rcorr.cens")
 importFrom("magrittr", "%>%")
 importFrom("mvtnorm", "rmvnorm")
+importFrom("plyr", ".", "ddply", "summarize")
 
 
 export(
