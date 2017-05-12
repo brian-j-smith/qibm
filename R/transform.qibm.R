@@ -78,51 +78,49 @@ function(`_data`, f, select = NULL, ref = 1, seed = 123, ...) {
 })
 
 
-.transform_qibm <- function(object, f, ...) {
-  chains <- transform(object, f, ...)
+.transform_qibm <- function(x, f, ...) {
+  chains <- transform(x, f, ...)
   prefix <- eval(as.character(substitute(f)))
   varnames(chains) <- paste0(prefix, "[", chains@select, "]")
   chains
 }  
 
 
-setMethod("Bias", signature(object = "qibm"),
-function(object, ...) {
-  .transform_qibm(object, Bias, ...)
+setMethod("Bias", signature(x = "qibm"),
+function(x, ...) {
+  .transform_qibm(x, Bias, ...)
 })
 
-setMethod("Bias", signature(object = "qibmSample"),
-function(object) {
-  object@mu - object@mu[object@ref]
+setMethod("Bias", signature(x = "qibmSample"),
+function(x) {
+  x@mu - x@mu[x@ref]
 })
 
 
-setMethod("CIndex", signature(object = "qibm"),
-function(object, ...) {
-  .transform_qibm(object, CIndex, ...)
+setMethod("CIndex", signature(x = "qibm"),
+function(x, ...) {
+  .transform_qibm(x, CIndex, ...)
 })
 
-setMethod("CIndex", signature(object = "qibmSample"),
-function(object) {
-  M <- ncol(object@gamma.img)
-  N <- nrow(object@gamma.img)
+setMethod("CIndex", signature(x = "qibmSample"),
+function(x) {
+  M <- ncol(x@gamma.img)
+  N <- nrow(x@gamma.img)
   retval <- rep(NA, M)
-  sigma.within <- sqrt(object@sigma.opr^2 + object@sigma.imgopr^2 +
-                         object@sigma.err^2)
-  b.ref <- rnorm(N, object@gamma.img[, object@ref],
-                 sigma.within[object@ref])
-  retval[object@ref] <- 1
-  for(i in setdiff(1:M, object@ref)) {
-    b <- rnorm(N, object@gamma.img[, i], sigma.within[i])
+  sigma.within <- sqrt(x@sigma.opr^2 + x@sigma.imgopr^2 + x@sigma.err^2)
+  b.ref <- rnorm(N, x@gamma.img[, x@ref], sigma.within[x@ref])
+  retval[x@ref] <- 1
+  for(i in setdiff(1:M, x@ref)) {
+    b <- rnorm(N, x@gamma.img[, i], sigma.within[i])
     retval[i] <- rcorr.cens(b, b.ref, outx = TRUE)["C Index"]
   }
   retval
 })
 
 
-setMethod("Cor", signature(object = "qibm"),
-function(object, diag = FALSE, ...) {
-  chains <- transform(object, Cor, diag = diag, ...)
+setMethod("Cor", signature(x = "qibm"),
+function(x, diag = FALSE, ...) {
+  chains <- transform(x, Cor, diag = diag, ...)
   N <- length(chains@select)
   ind <- matrix(chains@select, N, N)
   varnames(chains) <- paste0("Cor[", t(ind)[lower.tri(ind, diag = diag)], ",",
@@ -130,93 +128,91 @@ function(object, diag = FALSE, ...) {
   chains
 })
 
-setMethod("Cor", signature(object = "qibmSample"),
-function(object, diag = FALSE, ...) {
-  sigma2.img <- diag(object@Sigma.img)
-  r <- object@Sigma.img / sqrt(sigma2.img %o% sigma2.img)
+setMethod("Cor", signature(x = "qibmSample"),
+function(x, diag = FALSE, ...) {
+  sigma2.img <- diag(x@Sigma.img)
+  r <- x@Sigma.img / sqrt(sigma2.img %o% sigma2.img)
   r[lower.tri(r, diag)]
 })
 
 
-setMethod("GOF", signature(object = "qibm"),
-function(object, ...) {
-  .transform_qibm(object, GOF, ...)
+setMethod("GOF", signature(x = "qibm"),
+function(x, ...) {
+  .transform_qibm(x, GOF, ...)
 })
 
-setMethod("GOF", signature(object = "qibmSample"),
-function(object) {
-  as.numeric(object@gof.rep >= object@gof.obs)
+setMethod("GOF", signature(x = "qibmSample"),
+function(x) {
+  as.numeric(x@gof.rep >= x@gof.obs)
 })
 
 
-setMethod("ICC", signature(object = "qibm"),
-function(object, ...) {
-  .transform_qibm(object, ICC, ...)
+setMethod("ICC", signature(x = "qibm"),
+function(x, ...) {
+  .transform_qibm(x, ICC, ...)
 })
 
-setMethod("ICC", signature(object = "qibmSample"),
-function(object) {
-  sigma2.img <- diag(object@Sigma.img) 
-  sigma2.tot <- sigma2.img + object@sigma.opr^2 + object@sigma.imgopr^2 +
-    object@sigma.err^2
+setMethod("ICC", signature(x = "qibmSample"),
+function(x) {
+  sigma2.img <- diag(x@Sigma.img) 
+  sigma2.tot <- sigma2.img + x@sigma.opr^2 + x@sigma.imgopr^2 + x@sigma.err^2
   sigma2.img / sigma2.tot
 })
 
 
-setMethod("RC", signature(object = "qibm"),
-function(object, ...) {
-  .transform_qibm(object, RC, ...)
+setMethod("RC", signature(x = "qibm"),
+function(x, ...) {
+  .transform_qibm(x, RC, ...)
 })
 
-setMethod("RC", signature(object = "qibmSample"),
-function(object) {
-  2.77 * sqrt(object@sigma.err^2)
-})
-
-
-setMethod("RDC", signature(object = "qibm"),
-function(object, ...) {
-  .transform_qibm(object, RDC, ...)
-})
-
-setMethod("RDC", signature(object = "qibmSample"),
-function(object) {
-  2.77 * sqrt(object@sigma.opr^2 + object@sigma.imgopr^2 + object@sigma.err^2)
+setMethod("RC", signature(x = "qibmSample"),
+function(x) {
+  2.77 * sqrt(x@sigma.err^2)
 })
 
 
-setMethod("wCV", signature(object = "qibm"),
-function(object, ...) {
-  .transform_qibm(object, wCV, ...)
+setMethod("RDC", signature(x = "qibm"),
+function(x, ...) {
+  .transform_qibm(x, RDC, ...)
 })
 
-setMethod("wCV", signature(object = "qibmSample"),
-function(object) {
-  sigma2.within <- object@sigma.opr^2 + object@sigma.imgopr^2 +
-    object@sigma.err^2
+setMethod("RDC", signature(x = "qibmSample"),
+function(x) {
+  2.77 * sqrt(x@sigma.opr^2 + x@sigma.imgopr^2 + x@sigma.err^2)
+})
+
+
+setMethod("wCV", signature(x = "qibm"),
+function(x, ...) {
+  .transform_qibm(x, wCV, ...)
+})
+
+setMethod("wCV", signature(x = "qibmSample"),
+function(x) {
+  sigma2.within <- x@sigma.opr^2 + x@sigma.imgopr^2 + x@sigma.err^2
   sqrt(exp(sigma2.within) - 1)
 })
 
 
-setMethod("LRM", signature(object = "qibm"),
-function(object, beta, N, ...) {
-  chains <- transform(object, LRM, beta = beta, N = N, ...)
-  varnames(chains) <- paste0(c("Beta", "SE"),
+setMethod("LRM", signature(x = "qibm"),
+function(x, coef, N, ...) {
+  chains <- transform(x, LRM, coef = coef, N = N, ...)
+  varnames(chains) <- paste0(c("Coef", "Var"),
                              "[", rep(chains@select, each = 2), "]")
-  new("qibmLRM", chains, beta = beta, N = N)
+  new("qibmLRM", chains, coef = coef, N = N)
 })
 
 .stats_LRM <- function(x, y) {
-  fit <- glm(y ~ x, family = binomial)
-  c(coef(fit)[2], sqrt(vcov(fit)[2, 2]))
+  fit <- glm.fit(cbind(1, x), y, family = binomial())
+  c(fit$coef[2], chol2inv(fit$qr$qr)[2, 2])
 }
 
-setMethod("LRM", signature(object = "qibmSample"),
-function(object, beta, N) {
-  X <- rmvnorm(N, object@mu, object@Sigma.img, method = "chol")
-  y <- rbinom(N, 1, invlogit(beta[1] + beta[2] * X[, object@ref]))
-  sigma.tot <- sqrt(object@sigma.opr^2 + object@sigma.imgopr^2 +
-                      object@sigma.err^2)
-  W <- X + matrix(rnorm(length(X), 0, sigma.tot), N, byrow = TRUE)
-  apply(W, 2, .stats_LRM, y = y)
+setMethod("LRM", signature(x = "qibmSample"),
+function(x, coef, N) {
+  gamma.img <- rmvnorm(N, x@mu, x@Sigma.img, method = "chol")
+  y <- rbinom(N, 1, invlogit(coef[1] + coef[2] * gamma.img[, x@ref]))
+  sigma.tot <- sqrt(x@sigma.opr^2 + x@sigma.imgopr^2 + x@sigma.err^2)
+  gamma.tot <- gamma.img +
+    matrix(rnorm(length(gamma.img), 0, sigma.tot), N, byrow = TRUE)
+  apply(gamma.tot, 2, .stats_LRM, y = y)
 })

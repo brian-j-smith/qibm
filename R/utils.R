@@ -3,9 +3,9 @@ logit <- function(x) log(x / (1 - x))
 invlogit <- function(x) 1 / (1 + exp(-x))
 
 
-.describe_mcmc <- function(object, alpha, digits, scientific) {
+.summarize_mcmc <- function(x, alpha, digits, scientific) {
   f <- function(x) c(mean(x), sd(x), HPDinterval(as.mcmc(x)))
-  stats <- apply(as.matrix(object), 2, f) %>%
+  stats <- apply(as.matrix(x), 2, f) %>%
     round(digits = digits) %>%
     format(nsmall = digits, scientific = scientific) %>%
     trimws
@@ -14,12 +14,12 @@ invlogit <- function(x) 1 / (1 + exp(-x))
     structure(names = c("Mean", "SD", paste0(100 * (1 - alpha), "% HPD")))
 }
  
-setMethod("describe", signature(object = "mcmc"),
-function(object, alpha = 0.05, digits = options()$digits, scientific = FALSE) {
-  .describe_mcmc(object, alpha, digits, scientific)
+setMethod("summarize", signature(.data = "mcmc"),
+function(.data, alpha = 0.05, digits = options()$digits, scientific = FALSE) {
+  .summarize_mcmc(.data, alpha, digits, scientific)
 })
 
-setMethod("describe", signature(object = "mcmc.list"),
-function(object, alpha = 0.05, digits = options()$digits, scientific = FALSE) {
-  .describe_mcmc(object, alpha, digits, scientific)
+setMethod("summarize", signature(.data = "mcmc.list"),
+function(.data, alpha = 0.05, digits = options()$digits, scientific = FALSE) {
+  .summarize_mcmc(.data, alpha, digits, scientific)
 })

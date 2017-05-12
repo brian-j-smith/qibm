@@ -10,7 +10,7 @@ setClass("qibmTransform",
 )
 
 setClass("qibmLRM",
-         slots = c(beta = "numeric",
+         slots = c(coef = "numeric",
                    N = "numeric"),
          contains="qibmTransform"
 )
@@ -30,43 +30,41 @@ setClass("qibmSample",
 )
 
 
-setGeneric("describe", function(object, ...) {
-  standardGeneric("describe")
-})
+setGeneric("summarize")
 
 
-setGeneric("Bias", function(object, ...) {
+setGeneric("Bias", function(x, ...) {
   standardGeneric("Bias")
 })
 
-setGeneric("CIndex", function(object, ...) {
+setGeneric("CIndex", function(x, ...) {
   standardGeneric("CIndex")
 })
 
-setGeneric("Cor", function(object, ...) {
+setGeneric("Cor", function(x, ...) {
   standardGeneric("Cor")
 })
 
-setGeneric("GOF", function(object, ...) {
+setGeneric("GOF", function(x, ...) {
   standardGeneric("GOF")
 })
 
-setGeneric("ICC", function(object, ...) {
+setGeneric("ICC", function(x, ...) {
   standardGeneric("ICC")
 })
 
-setGeneric("RC", function(object, ...) {
+setGeneric("RC", function(x, ...) {
   standardGeneric("RC")
 })
 
-setGeneric("RDC", function(object, ...) {
+setGeneric("RDC", function(x, ...) {
   standardGeneric("RDC")
 })
 
-setGeneric("wCV", function(object, ...) {
+setGeneric("wCV", function(x, ...) {
   standardGeneric("wCV")
 })
 
-setGeneric("LRM", function(object, ...) {
+setGeneric("LRM", function(x, ...) {
   standardGeneric("LRM")
 })
