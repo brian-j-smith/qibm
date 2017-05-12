@@ -69,18 +69,38 @@ function(`_data`, f, select = NULL, ref = 1, seed = 123, ...) {
     newchain[i,] <- do.call(f, c(getSample(i), list(...)))
   }
   
-  as.data.frame(newchain) %>%
+  newchains <- as.data.frame(newchain) %>%
     split(rep(1:nchain(chains), each=niter(chains))) %>%
     lapply(as.mcmc) %>%
     as.mcmc.list
+  new("qibmTransform", newchains,
+      select = select, ref = ref)
 })
 
+
+.transform_qibm <- function(object, f, ...) {
+  chains <- transform(object, f, ...)
+  prefix <- eval(as.character(substitute(f)))
+  varnames(chains) <- paste0(prefix, "[", chains@select, "]")
+  chains
+}  
+
+
+setMethod("Bias", signature(object = "qibm"),
+function(object, ...) {
+  .transform_qibm(object, Bias, ...)
+})
 
 setMethod("Bias", signature(object = "qibmSample"),
 function(object) {
   object@mu - object@mu[object@ref]
 })
 
+
+setMethod("CIndex", signature(object = "qibm"),
+function(object, ...) {
+  .transform_qibm(object, CIndex, ...)
+})
 
 setMethod("CIndex", signature(object = "qibmSample"),
 function(object) {
@@ -100,6 +120,16 @@ function(object) {
 })
 
 
+setMethod("Cor", signature(object = "qibm"),
+function(object, diag = FALSE, ...) {
+  chains <- transform(object, Cor, diag = diag, ...)
+  N <- length(chains@select)
+  ind <- matrix(chains@select, N, N)
+  varnames(chains) <- paste0("Cor[", t(ind)[lower.tri(ind, diag = diag)], ",",
+                             ind[lower.tri(ind, diag = diag)], "]")
+  chains
+})
+
 setMethod("Cor", signature(object = "qibmSample"),
 function(object, diag = FALSE, ...) {
   sigma2.img <- diag(object@Sigma.img)
@@ -108,11 +138,21 @@ function(object, diag = FALSE, ...) {
 })
 
 
+setMethod("GOF", signature(object = "qibm"),
+function(object, ...) {
+  .transform_qibm(object, GOF, ...)
+})
+
 setMethod("GOF", signature(object = "qibmSample"),
 function(object) {
   as.numeric(object@gof.rep >= object@gof.obs)
 })
 
+
+setMethod("ICC", signature(object = "qibm"),
+function(object, ...) {
+  .transform_qibm(object, ICC, ...)
+})
 
 setMethod("ICC", signature(object = "qibmSample"),
 function(object) {
@@ -123,17 +163,32 @@ function(object) {
 })
 
 
+setMethod("RC", signature(object = "qibm"),
+function(object, ...) {
+  .transform_qibm(object, RC, ...)
+})
+
 setMethod("RC", signature(object = "qibmSample"),
 function(object) {
   2.77 * sqrt(object@sigma.err^2)
 })
 
 
+setMethod("RDC", signature(object = "qibm"),
+function(object, ...) {
+  .transform_qibm(object, RDC, ...)
+})
+
 setMethod("RDC", signature(object = "qibmSample"),
 function(object) {
   2.77 * sqrt(object@sigma.opr^2 + object@sigma.imgopr^2 + object@sigma.err^2)
 })
 
+
+setMethod("wCV", signature(object = "qibm"),
+function(object, ...) {
+  .transform_qibm(object, wCV, ...)
+})
 
 setMethod("wCV", signature(object = "qibmSample"),
 function(object) {
@@ -143,6 +198,19 @@ function(object) {
 })
 
 
+setMethod("LRM", signature(object = "qibm"),
+function(object, beta, N, ...) {
+  chains <- transform(object, LRM, beta = beta, N = N, ...)
+  varnames(chains) <- paste0(c("Beta", "SE"),
+                             "[", rep(chains@select, each = 2), "]")
+  new("qibmLRM", chains, beta = beta, N = N)
+})
+
+.stats_LRM <- function(x, y) {
+  fit <- glm(y ~ x, family = binomial)
+  c(coef(fit)[2], sqrt(vcov(fit)[2, 2]))
+}
+
 setMethod("LRM", signature(object = "qibmSample"),
 function(object, beta, N) {
   X <- rmvnorm(N, object@mu, object@Sigma.img, method = "chol")
@@ -150,10 +218,5 @@ function(object, beta, N) {
   sigma.tot <- sqrt(object@sigma.opr^2 + object@sigma.imgopr^2 +
                       object@sigma.err^2)
   W <- X + matrix(rnorm(length(X), 0, sigma.tot), N, byrow = TRUE)
-  apply(W, 2, LRMstats, y = y)
+  apply(W, 2, .stats_LRM, y = y)
 })
-
-LRMstats <- function(x, y) {
-  fit <- glm(y ~ x, family = binomial)
-  c(coef(fit)[2], sqrt(vcov(fit)[2, 2]))
-}

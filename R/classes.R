@@ -1,6 +1,19 @@
+setOldClass("mcmc")
 setOldClass("mcmc.list")
 
 setClass("qibm", contains="mcmc.list")
+
+setClass("qibmTransform",
+         slots = c(select = "numeric",
+                   ref = "numeric"),
+         contains="qibm"
+)
+
+setClass("qibmLRM",
+         slots = c(beta = "numeric",
+                   N = "numeric"),
+         contains="qibmTransform"
+)
 
 setClass("qibmSample",
   representation(
@@ -15,6 +28,12 @@ setClass("qibmSample",
     gof.rep = "numeric"
   )
 )
+
+
+setGeneric("describe", function(object, ...) {
+  standardGeneric("describe")
+})
+
 
 setGeneric("Bias", function(object, ...) {
   standardGeneric("Bias")

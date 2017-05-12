@@ -12,10 +12,13 @@ export(
 
 exportClasses(
   "qibm",
-  "qibmSample"
+  "qibmLRM",
+  "qibmSample",
+  "qibmTransform"
 )
 
 exportMethods(
+  "describe",
   "transform",
   "Bias",
   "CIndex",
