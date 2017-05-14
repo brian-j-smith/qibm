@@ -73,8 +73,7 @@ function(`_data`, f, select = NULL, ref = 1, seed = 123, ...) {
     split(rep(1:nchain(chains), each=niter(chains))) %>%
     lapply(as.mcmc) %>%
     as.mcmc.list
-  new("qibmTransform", newchains,
-      select = select, ref = ref)
+  new("qibmTransform", newchains, select = select, ref = ref)
 })
 
 
@@ -197,8 +196,8 @@ function(x) {
 setMethod("LRM", signature(x = "qibm"),
 function(x, coef, N, ...) {
   chains <- transform(x, LRM, coef = coef, N = N, ...)
-  varnames(chains) <- paste0(c("Coef", "Var"),
-                             "[", rep(chains@select, each = 2), "]")
+  tags <- expand.grid(c("Coef", "Var"), chains@select, N)
+  varnames(chains) <- paste0(tags[, 1], "[", tags[, 2], ",", tags[, 3], "]")
   new("qibmLRM", chains, coef = coef, N = N)
 })
 
@@ -209,10 +208,15 @@ function(x, coef, N, ...) {
 
 setMethod("LRM", signature(x = "qibmSample"),
 function(x, coef, N) {
-  gamma.img <- rmvnorm(N, x@mu, x@Sigma.img, method = "chol")
-  y <- rbinom(N, 1, invlogit(coef[1] + coef[2] * gamma.img[, x@ref]))
-  sigma.tot <- sqrt(x@sigma.opr^2 + x@sigma.imgopr^2 + x@sigma.err^2)
-  gamma.tot <- gamma.img +
-    matrix(rnorm(length(gamma.img), 0, sigma.tot), N, byrow = TRUE)
-  apply(gamma.tot, 2, .stats_LRM, y = y)
+  stats <- matrix(NA, 2 * length(x@mu), length(N))
+  for (j in seq_along(N)) {
+    n <- N[j]
+    gamma.img <- rmvnorm(n, x@mu, x@Sigma.img, method = "chol")
+    y <- rbinom(n, 1, invlogit(coef[1] + coef[2] * gamma.img[, x@ref]))
+    sigma.tot <- sqrt(x@sigma.opr^2 + x@sigma.imgopr^2 + x@sigma.err^2)
+    gamma.tot <- gamma.img +
+      matrix(rnorm(length(gamma.img), 0, sigma.tot), n, byrow = TRUE)
+    stats[, j] <- apply(gamma.tot, 2, .stats_LRM, y = y)
+  }
+  stats
 })
