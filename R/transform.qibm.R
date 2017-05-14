@@ -16,63 +16,44 @@
 #'   sampled model parameter values.
 
 setMethod("transform", signature(`_data` = "qibm"),
-function(`_data`, f, select = NULL, ref = 1, seed = 123, ...) {
+function(`_data`, f, select, ref = 1, seed = 123, ...) {
   set.seed(seed)
   
-  chain <- as.matrix(chains)
+  M <- length(parminds(chains, "mu"))
+  if(missing(select)) select <- 1:M
   
-  parmnames <- c("mu", "gamma.img", "Sigma.img", "sigma.opr", "sigma.imgopr",
-                 "sigma.err", "gof.obs", "gof.rep")
-  
-  M <- NULL
   parms <- list()
-  for (parmname in parmnames) {
-    idx <- grep(paste0("^", parmname), colnames(chain))
-    if (is.null(M)) M <- length(idx)
-    if (is.null(select)) select <- 1:M
-    parms[[parmname]] <-
-      if (parmname == "gamma.img") {
-        select2 <- matrix(FALSE, length(idx) / M, M)
-        select2[, select] <- TRUE
-        chain[, idx[select2], drop = FALSE]
-      } else if (parmname == "Sigma.img") {
-        select2 <- matrix(FALSE, M, M)
-        select2[select, select] <- TRUE
-        chain[, idx[select2], drop = FALSE]
-      } else if (parmname %in% c("sigma.opr", "sigma.imgopr")) {
-        parm <- matrix(0, nrow(chain), M)
-        parm[, 1:length(idx)] <- chain[, idx]
-        parm[, select, drop = FALSE]
-      } else {
-        chain[, idx[select], drop = FALSE]
-      }
-  }
+  parms$mu <- MCMCParmVec$new(chains, "mu", select, M)
+  parms$gamma.img <- MCMCParmColMat$new(chains, "gamma.img", select, M)
+  parms$Sigma.img <- MCMCParmVar$new(chains, "Sigma.img", select, M)
+  parms$sigma.opr <- MCMCParmVec$new(chains, "sigma.opr", select, M)
+  parms$sigma.imgopr <- MCMCParmVec$new(chains, "sigma.imgopr", select, M)
+  parms$sigma.err <- MCMCParmVec$new(chains, "sigma.err", select, M)
+  parms$gof.obs <- MCMCParmVec$new(chains, "gof.obs", select, M)
+  parms$gof.rep <- MCMCParmVec$new(chains, "gof.rep", select, M)
   
-  getSample <- function(i) {
+  getSample <- function(chain, iter) {
     theta <- new("qibmSample", ref = ref)
-    for(parmname in names(parms)) {
+    for (parmname in names(parms)) {
       slot(theta, parmname, check = FALSE) <-
-        if (parmname %in% c("gamma.img", "Sigma.img")) {
-          matrix(parms[[parmname]][i,], ncol = length(select))
-        } else {
-          parms[[parmname]][i,]
-        }
+        parms[[parmname]]$slice(chain, iter)
     }
     theta
   }
 
-  n <- nrow(chain)
-  x <- do.call(f, c(getSample(1), list(...)))
-  newchain <- matrix(NA, n, length(x))
-  newchain[1,] <- x
-  for(i in 2:n) {
-    newchain[i,] <- do.call(f, c(getSample(i), list(...)))
-  }
+  x <- do.call(f, c(getSample(1, 1), list(...)))
+  newchains <- as.mcmc.list(
+    replicate(nchain(chains),
+              mcmc(matrix(NA, niter(chains), length(x))),
+              simplify = FALSE)
+  )
   
-  newchains <- as.data.frame(newchain) %>%
-    split(rep(1:nchain(chains), each=niter(chains))) %>%
-    lapply(as.mcmc) %>%
-    as.mcmc.list
+  for (k in 1:nchain(chains)) {
+    for (i in 1:niter(chains)) {
+      newchains[[k]][i, ] <- do.call(f, c(getSample(k, i), list(...)))
+    }
+  }
+
   new("qibmTransform", newchains, select = select, ref = ref)
 })
 

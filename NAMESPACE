@@ -1,4 +1,4 @@
-import("coda", "methods", "rjags")
+import("coda", "methods", "rjags", "R6")
 
 importFrom("Hmisc", "rcorr.cens")
 importFrom("magrittr", "%>%")

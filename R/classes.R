@@ -30,6 +30,66 @@ setClass("qibmSample",
 )
 
 
+MCMCParmVec <- R6Class("MCMCParmVec",
+  public = list(
+    chains = NULL,
+    n = NULL,
+    src = NULL,
+    dest = NULL,
+    initialize = function(chains, suffix, select, n) {
+      inds <- parminds(chains, suffix)
+      self$chains <- chains
+      self$n <- length(select)
+      self$dest <- which(select <= length(inds))
+      self$src <- inds[select[self$dest]]
+    },
+    slice = function(chain, iter) {
+      x <- numeric(self$n)
+      x[self$dest] <- self$chains[[chain]][iter, self$src]
+      x
+    }
+  )
+)
+
+MCMCParmColMat <- R6Class("MCMCParmMat",
+  public = list(
+    chains = NULL,
+    n = NULL,
+    inds = NULL,
+    initialize = function(chains, suffix, select, n) {
+      inds <- parminds(chains, suffix)
+      select2 <- matrix(FALSE, length(inds) / n, n)
+      select2[, select] <- TRUE
+      self$chains <- chains
+      self$n <- length(select)
+      self$inds <- inds[select2]
+    },
+    slice = function(chain, iter) {
+      matrix(self$chains[[chain]][iter, self$inds], ncol = self$n)
+    }
+  )
+)
+
+MCMCParmVar <- R6Class("MCMCParmVar",
+  public = list(
+    chains = NULL,
+    n = NULL,
+    inds = NULL,
+    initialize = function(chains, suffix, select, n) {
+      inds <- parminds(chains, suffix)
+      select2 <- matrix(FALSE, n, n)
+      select2[select, select] <- TRUE
+      self$chains <- chains
+      self$n <- length(select)
+      self$inds <- inds[select2]
+    },
+    slice = function(chain, iter) {
+      matrix(self$chains[[chain]][iter, self$inds], self$n)
+    }
+  )
+)
+
+
 setGeneric("summarize")
 
 
