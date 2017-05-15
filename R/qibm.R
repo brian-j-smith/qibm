@@ -29,7 +29,7 @@ qibm <- function(fixed, image, operator, data, priors = list(),
   set.seed(seed)
   
   ### Data structures
-  mf <- model.frame(fixed, data=data, na.action=NULL)
+  mf <- model.frame(fixed, data = data, na.action = NULL)
   
   methodvar <- attr(terms(fixed), "term.labels")
   imgvar <- evalq(as.character(substitute(image)))
@@ -94,7 +94,7 @@ qibm <- function(fixed, image, operator, data, priors = list(),
     sigma2.err.shape <- getprior("sigma2.err.shape", 1.0e-3)
     sigma2.err.rate <- getprior("sigma2.err.rate", 1.0e-3)
     
-    gof <- array(0, dim=c(N, methodN, 2))
+    gof <- array(0, dim = c(N, methodN, 2))
     Map(function(i) gof[i, methodIDX[i], ] <<- NA, 1:N)
   })
   

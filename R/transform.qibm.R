@@ -158,7 +158,7 @@ function(x, y, ...) {
     geom_point() +
     labs(x = expression(T(y*"|"*theta)),
          y = expression(T(y^{rep}*"|"*theta))) +
-    geom_text(data = ann_text, aes(label = lab, hjust=0, vjust=1)) +
+    geom_text(data = ann_text, aes(label = lab, hjust = 0, vjust = 1)) +
     facet_wrap(~ time, ncol = ceiling(sqrt(n)))
 })
 

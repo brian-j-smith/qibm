@@ -1,22 +1,22 @@
 setOldClass("mcmc")
 setOldClass("mcmc.list")
 
-setClass("qibm", contains="mcmc.list")
+setClass("qibm", contains = "mcmc.list")
 
 setClass("qibmTransform",
          slots = c(select = "numeric",
                    ref = "numeric"),
-         contains="qibm"
+         contains = "qibm"
 )
 
 setClass("qibmGOF",
-         contains="qibmTransform"
+         contains = "qibmTransform"
 )
 
 setClass("qibmLRM",
          slots = c(coef = "numeric",
                    N = "numeric"),
-         contains="qibmTransform"
+         contains = "qibmTransform"
 )
 
 setClass("qibmSample",
