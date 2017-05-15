@@ -1,5 +1,6 @@
-import("coda", "methods", "rjags", "R6")
+import("coda", "ggplot2", "methods", "rjags", "R6")
 
+importFrom("graphics", "plot")
 importFrom("Hmisc", "rcorr.cens")
 importFrom("magrittr", "%>%")
 importFrom("mvtnorm", "rmvnorm")
@@ -12,12 +13,14 @@ export(
 
 exportClasses(
   "qibm",
+  "qibmGOF",
   "qibmLRM",
   "qibmSample",
   "qibmTransform"
 )
 
 exportMethods(
+  "plot",
   "summarize",
   "transform",
   "Bias",

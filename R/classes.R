@@ -9,6 +9,10 @@ setClass("qibmTransform",
          contains="qibm"
 )
 
+setClass("qibmGOF",
+         contains="qibmTransform"
+)
+
 setClass("qibmLRM",
          slots = c(coef = "numeric",
                    N = "numeric"),

@@ -58,7 +58,8 @@ qibm <- function(fixed, image, operator, data, priors = list(),
   ### Model data
   model.data <- within(list(), {
     y <- data$y
-    N <- nrow(data)
+    n <- xtabs(~ data$method)
+    N <- sum(n)
     
     model1IDX <- which(!inmodel2)
     model1N <- length(model1IDX)
@@ -168,8 +169,8 @@ qibm <- function(fixed, image, operator, data, priors = list(),
         tau.err[j] ~ dgamma(sigma2.err.shape, sigma2.err.rate)
         sigma.err[j] <- 1 / sqrt(tau.err[j])
         
-        gof.rep[j] <- sum(gof[, j, 1])
-        gof.obs[j] <- sum(gof[, j, 2])
+        gof.rep[j] <- sum(gof[, j, 1]) / n[j]
+        gof.obs[j] <- sum(gof[, j, 2]) / n[j]
       }
       
       Omega.img[1:methodN, 1:methodN] ~ dwish(Sigma.img.scale[,], Sigma.img.df)

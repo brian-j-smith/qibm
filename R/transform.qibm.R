@@ -118,12 +118,48 @@ function(x, diag = FALSE, ...) {
 
 setMethod("GOF", signature(x = "qibm"),
 function(x, ...) {
-  .transform_qibm(x, GOF, ...)
+  chains <- transform(x, GOF, ...)
+  tags <- expand.grid(chains@select, c("gof.rep", "gof.obs"))
+  varnames(chains) <- paste0(tags[, 2], "[", tags[, 1], "]")
+  new("qibmGOF", chains)
 })
 
 setMethod("GOF", signature(x = "qibmSample"),
 function(x) {
-  as.numeric(x@gof.rep >= x@gof.obs)
+  c(x@gof.rep,  x@gof.obs)
+})
+
+setMethod("plot", signature(x = "qibmGOF"),
+function(x, y, ...) {
+  data <- as.data.frame(as.matrix(x))
+  
+  vars <- names(data)
+  n <- length(vars) / 2
+  datalong <- reshape(data, varying = list(head(vars, n), tail(vars, n)),
+                      v.names = c("gof.rep", "gof.obs"), times = x@select,
+                      direction = "long")
+  
+  pval <- tapply(datalong$gof.rep >= datalong$gof.obs, datalong$time, mean)
+  ann_text <- data.frame(
+    gof.obs = -Inf,
+    gof.rep = Inf,
+    time = x@select,
+    lab = paste0("p = ", round(pval, 3))
+  )
+  
+  ggplot(datalong, aes(gof.obs, gof.rep)) +
+    geom_abline(slope = 1, intercept = 0) +
+    geom_point() +
+    labs(x = expression(T(y*"|"*theta)),
+         y = expression(T(y^{rep}*"|"*theta))) +
+    geom_text(data = ann_text, aes(label = lab, hjust=0, vjust=1)) +
+    facet_wrap(~ time, ncol = ceiling(sqrt(n)))
+})
+
+setMethod("summarize", signature(.data = "qibmGOF"),
+function(.data, alpha = 0.05, digits = options()$digits, scientific = FALSE) {
+  chains <- transform(.data, function(x) as.numeric(x@gof.rep >= x@gof.obs))
+  summarize(chains, alpha = alpha, digits = digits, scientific = scientific)
 })
 
 
