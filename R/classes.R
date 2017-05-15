@@ -94,7 +94,9 @@ MCMCParmVar <- R6Class("MCMCParmVar",
 )
 
 
-setGeneric("summarize")
+setGeneric("describe", function(x, ...) {
+  standardGeneric("describe")
+})
 
 
 setGeneric("Bias", function(x, ...) {

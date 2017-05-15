@@ -129,6 +129,12 @@ function(x) {
   c(x@gof.rep,  x@gof.obs)
 })
 
+setMethod("describe", signature(x = "qibmGOF"),
+function(x, alpha = 0.05, digits = options()$digits, scientific = FALSE) {
+  chains <- transform(x, function(x) as.numeric(x@gof.rep >= x@gof.obs))
+  describe(chains, alpha = alpha, digits = digits, scientific = scientific)
+})
+
 setMethod("plot", signature(x = "qibmGOF"),
 function(x, y, ...) {
   data <- as.data.frame(as.matrix(x))
@@ -154,12 +160,6 @@ function(x, y, ...) {
          y = expression(T(y^{rep}*"|"*theta))) +
     geom_text(data = ann_text, aes(label = lab, hjust=0, vjust=1)) +
     facet_wrap(~ time, ncol = ceiling(sqrt(n)))
-})
-
-setMethod("summarize", signature(.data = "qibmGOF"),
-function(.data, alpha = 0.05, digits = options()$digits, scientific = FALSE) {
-  chains <- transform(.data, function(x) as.numeric(x@gof.rep >= x@gof.obs))
-  summarize(chains, alpha = alpha, digits = digits, scientific = scientific)
 })
 
 

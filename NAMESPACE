@@ -20,8 +20,8 @@ exportClasses(
 )
 
 exportMethods(
+  "describe",
   "plot",
-  "summarize",
   "transform",
   "Bias",
   "CIndex",
