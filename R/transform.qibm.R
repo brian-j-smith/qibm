@@ -19,18 +19,18 @@ setMethod("transform", signature(`_data` = "qibm"),
 function(`_data`, f, select, ref = 1, seed = 123, ...) {
   set.seed(seed)
   
-  M <- length(parminds(chains, "mu"))
+  M <- length(parminds(`_data`, "mu"))
   if(missing(select)) select <- 1:M
   
   parms <- list()
-  parms$mu <- MCMCParmVec$new(chains, "mu", select, M)
-  parms$gamma.img <- MCMCParmColMat$new(chains, "gamma.img", select, M)
-  parms$Sigma.img <- MCMCParmVar$new(chains, "Sigma.img", select, M)
-  parms$sigma.opr <- MCMCParmVec$new(chains, "sigma.opr", select, M)
-  parms$sigma.imgopr <- MCMCParmVec$new(chains, "sigma.imgopr", select, M)
-  parms$sigma.err <- MCMCParmVec$new(chains, "sigma.err", select, M)
-  parms$gof.obs <- MCMCParmVec$new(chains, "gof.obs", select, M)
-  parms$gof.rep <- MCMCParmVec$new(chains, "gof.rep", select, M)
+  parms$mu <- MCMCParmVec$new(`_data`, "mu", select, M)
+  parms$gamma.img <- MCMCParmColMat$new(`_data`, "gamma.img", select, M)
+  parms$Sigma.img <- MCMCParmVar$new(`_data`, "Sigma.img", select, M)
+  parms$sigma.opr <- MCMCParmVec$new(`_data`, "sigma.opr", select, M)
+  parms$sigma.imgopr <- MCMCParmVec$new(`_data`, "sigma.imgopr", select, M)
+  parms$sigma.err <- MCMCParmVec$new(`_data`, "sigma.err", select, M)
+  parms$gof.obs <- MCMCParmVec$new(`_data`, "gof.obs", select, M)
+  parms$gof.rep <- MCMCParmVec$new(`_data`, "gof.rep", select, M)
   
   getSample <- function(chain, iter) {
     theta <- new("qibmSample", ref = ref)
@@ -42,19 +42,19 @@ function(`_data`, f, select, ref = 1, seed = 123, ...) {
   }
 
   x <- do.call(f, c(getSample(1, 1), list(...)))
-  newchains <- as.mcmc.list(
-    replicate(nchain(chains),
-              mcmc(matrix(NA, niter(chains), length(x))),
+  chains <- as.mcmc.list(
+    replicate(nchain(`_data`),
+              mcmc(matrix(NA, niter(`_data`), length(x))),
               simplify = FALSE)
   )
   
   for (k in 1:nchain(chains)) {
     for (i in 1:niter(chains)) {
-      newchains[[k]][i, ] <- do.call(f, c(getSample(k, i), list(...)))
+      chains[[k]][i, ] <- do.call(f, c(getSample(k, i), list(...)))
     }
   }
 
-  new("qibmTransform", newchains, select = select, ref = ref)
+  new("qibmTransform", chains, select = select, ref = ref)
 })
 
 
@@ -211,7 +211,8 @@ function(x) {
 
 
 setMethod("LRM", signature(x = "qibm"),
-function(x, coef, N, ...) {
+function(x, coef, N, seed = 123, ...) {
+  set.seed(seed)
   chains <- transform(x, LRM, coef = coef, N = N, ...)
   tags <- expand.grid(c("Coef", "Var"), chains@select, N)
   varnames(chains) <- paste0(tags[, 1], "[", tags[, 2], ",", tags[, 3], "]")
@@ -232,8 +233,63 @@ function(x, coef, N) {
     y <- rbinom(n, 1, invlogit(coef[1] + coef[2] * gamma.img[, x@ref]))
     sigma.tot <- sqrt(x@sigma.opr^2 + x@sigma.imgopr^2 + x@sigma.err^2)
     gamma.tot <- gamma.img +
-      matrix(rnorm(length(gamma.img), 0, sigma.tot), n, byrow = TRUE)
+      matrix(rnorm(length(gamma.img), 0.0, sigma.tot), n, byrow = TRUE)
     stats[, j] <- apply(gamma.tot, 2, .stats_LRM, y = y)
   }
   stats
+})
+
+setMethod("describe", signature(x = "qibmLRM"),
+function(x, alpha = 0.05, alternative = c("two.sided", "less", "greater"),
+         scale = 1) {
+  alternative <- match.arg(alternative)
+  alpha2 <- if (alternative == "two.sided") alpha / 2 else alpha
+  
+  coef.ref <- x@coef[2]
+  
+  f <- function(x) {
+    inds <- seq(1, ncol(x), by = 2)
+    coef <- x[, inds, drop = FALSE]
+    se <- sqrt(x[, -inds, drop = FALSE])
+    err <- qnorm(1 - alpha2) * se
+    innull <- 1
+    incoverage <- 1
+    if (alternative != "less") {
+      lcl <- coef - err
+      innull <- innull * (lcl < 0.0)
+      incoverage <- incoverage * (lcl < coef.ref)
+    }
+    if (alternative != "greater") {
+      ucl <- coef + err
+      innull <- innull * (0.0 < ucl)
+      incoverage <- incoverage * (coef.ref < ucl)
+    }
+    cbind(1.0 - apply(innull, 2, mean),
+          coda:::safespec0(innull),
+          apply(incoverage, 2, mean),
+          coda:::safespec0(incoverage))
+  }
+  
+  id <- expand.grid(Method = x@select, N = x@N)
+  
+  coef <- as.matrix(x)[, seq(1, nvar(x), by = 2), drop = FALSE]
+  or <- exp(scale * coef)
+  or.mean <- apply(or, 2, mean)
+  or.hpd <- apply(or, 2, hpd, alpha = alpha, alternative = alternative)
+  rmse <- sqrt((or.mean - exp(scale * coef.ref))^2 + apply(or, 2, var))
+  
+  stats <- lapply(x, f) %>% simplify2array %>% apply(c(1, 2), mean)
+  
+  data.frame(
+    id,
+    OR = or.mean,
+    Lower = or.hpd[1, ],
+    Upper = or.hpd[2, ],
+    RMSE = rmse,
+    Power = stats[, 1],
+    Power.MCSE = stats[, 2],
+    Coverage = stats[, 3],
+    Coverage.MCSE = stats[, 4],
+    row.names = 1:nrow(id)
+  )
 })

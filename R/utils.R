@@ -1,3 +1,23 @@
+hpd <- function(x, alpha = 0.05, alternative = c("two.sided", "less", "greater")) {
+  alternative <- match.arg(alternative)
+  
+  n <- length(x)
+  m <- max(1, ceiling(alpha * n))
+  y <- sort(x)
+  
+  switch(alternative,
+    "two.sided" = {
+      a <- y[1:m]
+      b <- y[(n - m + 1):n]
+      i <- which.min(b - a)
+      c(a[i], b[i])
+    },
+    "less" = c(-Inf, y[n - m + 1]),
+    "greater" = c(y[m], Inf)
+  ) %>% structure(names = c("Lower", "Upper"))
+}
+
+
 logit <- function(x) log(x / (1 - x))
 
 invlogit <- function(x) 1 / (1 + exp(-x))
@@ -16,7 +36,7 @@ function(x, alpha = 0.05) {
 setMethod("describe", signature(x = "mcmc.list"),
 function(x, alpha = 0.05) {
   mcse <- sapply(x, coda:::safespec0) %>% apply(1, mean)
-  f <- function(x) c(mean(x), sd(x), HPDinterval(as.mcmc(x), prob = 1 - alpha))
+  f <- function(x) c(mean(x), sd(x), hpd(x, alpha = alpha))
   stats <- as.matrix(x) %>%
     apply(2, f) %>%
     t %>%
