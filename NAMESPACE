@@ -11,14 +11,6 @@ export(
   "qibm"
 )
 
-exportClasses(
-  "qibm",
-  "qibmGOF",
-  "qibmLRM",
-  "qibmSample",
-  "qibmTransform"
-)
-
 exportMethods(
   "describe",
   "plot",
