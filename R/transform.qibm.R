@@ -130,9 +130,9 @@ function(x) {
 })
 
 setMethod("describe", signature(x = "qibmGOF"),
-function(x, alpha = 0.05, digits = options()$digits, scientific = FALSE) {
+function(x, alpha = 0.05) {
   chains <- transform(x, function(x) as.numeric(x@gof.rep >= x@gof.obs))
-  describe(chains, alpha = alpha, digits = digits, scientific = scientific)
+  describe(chains, alpha = alpha)
 })
 
 setMethod("plot", signature(x = "qibmGOF"),

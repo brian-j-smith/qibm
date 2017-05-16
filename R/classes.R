@@ -1,6 +1,13 @@
 setOldClass("mcmc")
 setOldClass("mcmc.list")
 
+
+setClass("MCMCDescribe",
+         slots = c(alpha = "numeric"),
+         contains = "data.frame"
+)
+
+
 setClass("qibm", contains = "mcmc.list")
 
 setClass("qibmTransform",
