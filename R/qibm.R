@@ -109,7 +109,7 @@ qibm <- function(fixed, image, operator, data, priors = list(),
              ddply(.(method), summarize,
                    mean = mean(y),
                    se = sd(y) / sqrt(length(y)),
-                   prec = pmin(1 / var(z), 1e10),
+                   prec = min(1 / var(z), 1e10),
                    hw = sqrt(sqrt(prec * 12) / 2))
     stats$prec1 <- pmax(stats$prec - stats$hw, 0)
     stats$prec2 <- stats$prec1 + 2 * stats$hw
