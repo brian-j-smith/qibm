@@ -20,9 +20,35 @@
 #' 
 #' @return A \code{qibm} object that inherits from \code{\link[coda]{mcmc.list}} and
 #'   contains the MCMC sampled model parameter values.
+#'   
+#' @examples
+#' \dontrun{
+#' data(hnc)
+#' 
+#' parms <- c("mu", "gamma.img", "Sigma.img", "sigma.opr", "sigma.imgopr", "sigma.err",
+#'            "gof.rep", "gof.obs")
+#' 
+#' fit <- qibm(log(Volume) ~ method, image = image, operator = operator,
+#'             data = hnc, parameters = parms,
+#'             n.burnin = 5000, n.iter = 10000, n.thin = 5, n.chains = 3)
+#' 
+#' describe(Bias(fit))
+#' describe(CIndex(fit))
+#' describe(Cor(fit))
+#' 
+#' fit.GOF <- GOF(fit)
+#' describe(fit.GOF)
+#' plot(fit.GOF)
+#' 
+#' describe(ICC(fit))
+#' describe(RC(fit))
+#' describe(RDC(fit))
+#' describe(wCV(fit))
+#' }
 
 qibm <- function(fixed, image, operator, data, priors = list(),
-                 parameters = c("mu", "sigma.opr", "sigma.imgopr", "sigma.err"),
+                 parameters = c("mu", "Sigma.img", "sigma.opr", "sigma.imgopr",
+                                "sigma.err"),
                  n.burnin = 2500, n.iter = 10000, n.thin = 5, n.chains = 3,
                  seed = 123) {
   ### Set random number seed
@@ -182,5 +208,5 @@ qibm <- function(fixed, image, operator, data, priors = list(),
   chains <- jags.model(textConnection(qibm.jags), model.data, inits, n.chains) %>%
     coda.samples(parameters, n.iter, n.thin) %>%
     window(n.burnin + 1)
-  new("qibm", chains)
+  new("qibm", chains, M = model.data$methodN)
 }

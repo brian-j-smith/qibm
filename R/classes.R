@@ -8,7 +8,10 @@ setClass("MCMCDescribe",
 )
 
 
-setClass("qibm", contains = "mcmc.list")
+setClass("qibm", 
+         slots = c(M = "numeric"),
+         contains = "mcmc.list"
+)
 
 setClass("qibmTransform",
          slots = c(select = "numeric",

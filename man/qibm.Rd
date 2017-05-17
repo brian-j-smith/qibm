@@ -5,7 +5,7 @@
 \title{Quantitative Imaging Biomarker Model}
 \usage{
 qibm(fixed, image, operator, data, priors = list(), parameters = c("mu",
-  "sigma.opr", "sigma.imgopr", "sigma.err"), n.burnin = 2500,
+  "Sigma.img", "sigma.opr", "sigma.imgopr", "sigma.err"), n.burnin = 2500,
   n.iter = 10000, n.thin = 5, n.chains = 3, seed = 123)
 }
 \arguments{
@@ -41,4 +41,29 @@ A \code{qibm} object that inherits from \code{\link[coda]{mcmc.list}} and
 \code{qibm} is used to fit a Bayesian measurement error model for the 
 comparison of biomarker measurements derived from different quantitative
 imaging methods.
+}
+\examples{
+\dontrun{
+data(hnc)
+
+parms <- c("mu", "gamma.img", "Sigma.img", "sigma.opr", "sigma.imgopr", "sigma.err",
+           "gof.rep", "gof.obs")
+
+fit <- qibm(log(Volume) ~ method, image = image, operator = operator,
+            data = hnc, parameters = parms,
+            n.burnin = 5000, n.iter = 10000, n.thin = 5, n.chains = 3)
+
+describe(Bias(fit))
+describe(CIndex(fit))
+describe(Cor(fit))
+
+fit.GOF <- GOF(fit)
+describe(fit.GOF)
+plot(fit.GOF)
+
+describe(ICC(fit))
+describe(RC(fit))
+describe(RDC(fit))
+describe(wCV(fit))
+}
 }

@@ -5,8 +5,7 @@
 \alias{transform,qibm-method}
 \title{Transform Parameters from a Quantitative Imaging Biomarker Model Fit}
 \usage{
-\S4method{transform}{qibm}(`_data`, f, select = NULL, ref = 1, seed = 123,
-  ...)
+\S4method{transform}{qibm}(`_data`, f, select, ref = 1, seed = 123, ...)
 }
 \arguments{
 \item{_data}{\code{\link{qibm}} object of MCMC sample model parameter

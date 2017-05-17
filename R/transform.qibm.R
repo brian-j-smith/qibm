@@ -19,7 +19,7 @@ setMethod("transform", signature(`_data` = "qibm"),
 function(`_data`, f, select, ref = 1, seed = 123, ...) {
   set.seed(seed)
   
-  M <- length(parminds(`_data`, "mu"))
+  M <- `_data`@M
   if(missing(select)) select <- 1:M
   
   parms <- list()
@@ -44,7 +44,8 @@ function(`_data`, f, select, ref = 1, seed = 123, ...) {
   x <- do.call(f, c(getSample(1, 1), list(...)))
   chains <- as.mcmc.list(
     replicate(nchain(`_data`),
-              mcmc(matrix(NA, niter(`_data`), length(x))),
+              mcmc(matrix(NA, niter(`_data`), length(x)),
+                   start = start(`_data`), thin = thin(`_data`)),
               simplify = FALSE)
   )
   
@@ -54,7 +55,7 @@ function(`_data`, f, select, ref = 1, seed = 123, ...) {
     }
   }
 
-  new("qibmTransform", chains, select = select, ref = ref)
+  new("qibmTransform", chains, M = M, select = select, ref = ref)
 })
 
 
@@ -126,7 +127,7 @@ function(x, ...) {
 
 setMethod("GOF", signature(x = "qibmSample"),
 function(x) {
-  c(x@gof.rep,  x@gof.obs)
+  c(x@gof.rep, x@gof.obs)
 })
 
 setMethod("describe", signature(x = "qibmGOF"),
