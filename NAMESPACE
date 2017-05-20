@@ -8,14 +8,14 @@ importFrom("plyr", ".", "ddply", "summarize")
 
 
 export(
-  "qibm"
+  "qibm",
+  "with.qibm"
 )
 
 exportMethods(
   "describe",
   "plot",
   "print",
-  "transform",
   "Bias",
   "CIndex",
   "Cor",

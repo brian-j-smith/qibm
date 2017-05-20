@@ -20,7 +20,9 @@
 #' 
 #' @return A \code{qibm} object that inherits from \code{\link[coda]{mcmc.list}} and
 #'   contains the MCMC sampled model parameter values.
-#'   
+#' 
+#' @seealso \code{\link[=with.qibm]{with}}.
+#' 
 #' @examples
 #' \dontrun{
 #' data(hnc)
@@ -32,18 +34,21 @@
 #'             data = hnc, parameters = parms,
 #'             n.burnin = 5000, n.iter = 10000, n.thin = 5, n.chains = 3)
 #' 
-#' describe(Bias(fit))
-#' describe(CIndex(fit))
+#' describe(with(fit, exp(mu)))
+#' describe(with(fit, exp(sqrt(diag(Sigma.img)))))
+#' describe(with(fit, exp(sqrt(sigma.opr^2 + sigma.imgopr^2))))
+#' describe(with(fit, exp(sigma.err)))
+#' 
 #' describe(Cor(fit))
 #' 
-#' fit.GOF <- GOF(fit)
-#' describe(fit.GOF)
-#' plot(fit.GOF)
-#' 
+#' describe(Bias(fit))
+#' describe(with(fit, exp(mu) - exp(mu[1])))
+#' describe(CIndex(fit))
 #' describe(ICC(fit))
-#' describe(RC(fit))
-#' describe(RDC(fit))
+#' 
 #' describe(wCV(fit))
+#' describe(RDC(fit))
+#' describe(RC(fit))
 #' }
 
 qibm <- function(fixed, image, operator, data, priors = list(),

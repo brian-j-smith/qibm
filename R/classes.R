@@ -29,33 +29,18 @@ setClass("qibmLRM",
          contains = "qibmTransform"
 )
 
-setClass("qibmSample",
-  representation(
-    ref = "numeric",
-    mu = "numeric",
-    gamma.img = "matrix",
-    Sigma.img = "matrix",
-    sigma.opr = "numeric",
-    sigma.imgopr = "numeric",
-    sigma.err = "numeric",
-    gof.obs = "numeric",
-    gof.rep = "numeric"
-  )
-)
-
 
 MCMCParmVec <- R6Class("MCMCParmVec",
   public = list(
     chains = NULL,
-    n = NULL,
     src = NULL,
     dest = NULL,
-    initialize = function(chains, suffix, select, n) {
-      inds <- parminds(chains, suffix)
+    n = NULL,
+    initialize = function(chains, src, select, n) {
       self$chains <- chains
+      self$dest <- which(select <= length(src))
+      self$src <- src[select[self$dest]]
       self$n <- length(select)
-      self$dest <- which(select <= length(inds))
-      self$src <- inds[select[self$dest]]
     },
     slice = function(chain, iter) {
       x <- numeric(self$n)
@@ -65,40 +50,68 @@ MCMCParmVec <- R6Class("MCMCParmVec",
   )
 )
 
-MCMCParmColMat <- R6Class("MCMCParmMat",
+MCMCParmColMat <- R6Class("MCMCParmColMat",
   public = list(
     chains = NULL,
-    n = NULL,
-    inds = NULL,
-    initialize = function(chains, suffix, select, n) {
-      inds <- parminds(chains, suffix)
-      select2 <- matrix(FALSE, length(inds) / n, n)
+    src = NULL,
+    dim = NULL,
+    initialize = function(chains, src, select, n) {
+      m <- length(src) / n
+      select2 <- matrix(FALSE, m, n)
       select2[, select] <- TRUE
       self$chains <- chains
-      self$n <- length(select)
-      self$inds <- inds[select2]
+      self$src <- src[select2]
+      self$dim <- c(m, length(select))
     },
     slice = function(chain, iter) {
-      matrix(self$chains[[chain]][iter, self$inds], ncol = self$n)
+      matrix(self$chains[[chain]][iter, self$src], self$dim[1], self$dim[2])
     }
   )
 )
 
-MCMCParmVar <- R6Class("MCMCParmVar",
+MCMCParmVarMat <- R6Class("MCMCParmVarMat",
   public = list(
     chains = NULL,
+    src = NULL,
     n = NULL,
-    inds = NULL,
-    initialize = function(chains, suffix, select, n) {
-      inds <- parminds(chains, suffix)
+    initialize = function(chains, src, select, n) {
       select2 <- matrix(FALSE, n, n)
       select2[select, select] <- TRUE
       self$chains <- chains
+      self$src <- src[select2]
       self$n <- length(select)
-      self$inds <- inds[select2]
     },
     slice = function(chain, iter) {
-      matrix(self$chains[[chain]][iter, self$inds], self$n)
+      matrix(self$chains[[chain]][iter, self$src], self$n, self$n)
+    }
+  )
+)
+
+MCMCParmList <- R6Class("MCMCParmList",
+  public = list(
+    parms = NULL,
+    initialize = function(chains, select, n) {
+      tokens <- strsplit(varnames(chains), "[][,]")
+      prefix <- sapply(tokens, function(x) x[1])
+      parms <- list()
+      for (parmname in unique(prefix)) {
+        src <- which(parmname == prefix)
+        parms[[parmname]] <- switch(parmname,
+          "mu" = MCMCParmVec$new(chains, src, select, n),
+          "gamma.img" = MCMCParmColMat$new(chains, src, select, n),
+          "Sigma.img" = MCMCParmVarMat$new(chains, src, select, n),
+          "sigma.opr" = MCMCParmVec$new(chains, src, select, n),
+          "sigma.imgopr" = MCMCParmVec$new(chains, src, select, n),
+          "sigma.err" = MCMCParmVec$new(chains, src, select, n),
+          "gof.obs" = MCMCParmVec$new(chains, src, select, n),
+          "gof.rep" = MCMCParmVec$new(chains, src, select, n),
+          NULL
+        )
+      }
+      self$parms <- parms
+    },
+    slice = function(chain, iter) {
+      lapply(self$parms, function(x) x$slice(chain, iter))
     }
   )
 )

@@ -23,11 +23,6 @@ logit <- function(x) log(x / (1 - x))
 invlogit <- function(x) 1 / (1 + exp(-x))
 
 
-parminds <- function(chains, suffix) {
-  grep(paste0("^", suffix), varnames(chains))
-}
-
-
 setMethod("describe", signature(x = "mcmc"),
 function(x, alpha = 0.05) {
   describe(as.mcmc.list(x), alpha = alpha)
