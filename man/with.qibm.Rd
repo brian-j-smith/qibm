@@ -2,6 +2,7 @@
 % Please edit documentation in R/with.qibm.R
 \name{with.qibm}
 \alias{with.qibm}
+\alias{with}
 \title{Evaluate an Expression in Quantitative Imaging Biomarker Model MCMC Samples}
 \usage{
 \method{with}{qibm}(data, expr, select, ref = 1, ...)

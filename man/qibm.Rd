@@ -68,8 +68,22 @@ describe(ICC(fit))
 describe(wCV(fit))
 describe(RDC(fit))
 describe(RC(fit))
+
+fit.gof <- GOF(fit)
+plot(fit.gof)
+describe(fit.gof)
 }
+
 }
 \seealso{
-\code{\link[=with.qibm]{with}}.
+\code{\link[=with.qibm]{with}},
+  \code{\link{Bias}},
+  \code{\link{CIndex}},
+  \code{\link{Cor}},
+  \code{\link{GOF}},
+  \code{\link{ICC}},
+  \code{\link{LRM}}
+  \code{\link{RC}},
+  \code{\link{RDC}},
+  \code{\link{wCV}}.
 }

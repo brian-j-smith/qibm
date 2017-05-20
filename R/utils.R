@@ -23,11 +23,17 @@ logit <- function(x) log(x / (1 - x))
 invlogit <- function(x) 1 / (1 + exp(-x))
 
 
+#' @rdname describe
+#' 
+#' @param alpha tail probabilities for credible intervals.
+#' 
 setMethod("describe", signature(x = "mcmc"),
 function(x, alpha = 0.05) {
   describe(as.mcmc.list(x), alpha = alpha)
 })
 
+#' @rdname describe
+#' 
 setMethod("describe", signature(x = "mcmc.list"),
 function(x, alpha = 0.05) {
   mcse <- sapply(x, coda:::safespec0) %>% apply(1, mean)
@@ -42,6 +48,14 @@ function(x, alpha = 0.05) {
 })
 
 
+#' Pint Values
+#' 
+#' @param x an object returned by \code{\link{describe}}.
+#' @param digits integer indicated the number of decimal places to display.
+#' @param scientific whether to encode values in scientific format.
+#' 
+#' @aliases print
+#' 
 setMethod("print", signature(x = "MCMCDescribe"),
 function(x, digits = options()$digits, scientific = FALSE) {
   stats <- round(x, digits = digits) %>%

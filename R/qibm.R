@@ -21,7 +21,16 @@
 #' @return A \code{qibm} object that inherits from \code{\link[coda]{mcmc.list}} and
 #'   contains the MCMC sampled model parameter values.
 #' 
-#' @seealso \code{\link[=with.qibm]{with}}.
+#' @seealso \code{\link[=with.qibm]{with}},
+#'   \code{\link{Bias}},
+#'   \code{\link{CIndex}},
+#'   \code{\link{Cor}},
+#'   \code{\link{GOF}},
+#'   \code{\link{ICC}},
+#'   \code{\link{LRM}}
+#'   \code{\link{RC}},
+#'   \code{\link{RDC}},
+#'   \code{\link{wCV}}.
 #' 
 #' @examples
 #' \dontrun{
@@ -49,8 +58,12 @@
 #' describe(wCV(fit))
 #' describe(RDC(fit))
 #' describe(RC(fit))
+#' 
+#' fit.gof <- GOF(fit)
+#' plot(fit.gof)
+#' describe(fit.gof)
 #' }
-
+#' 
 qibm <- function(fixed, image, operator, data, priors = list(),
                  parameters = c("mu", "Sigma.img", "sigma.opr", "sigma.imgopr",
                                 "sigma.err"),

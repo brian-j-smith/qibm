@@ -14,7 +14,8 @@
 #' evaluated \code{expr}.
 #' 
 #' @seealso \code{\link{qibm}}.
-
+#' @aliases with
+#' 
 with.qibm <- function(data, expr, select, ref = 1, ...) {
   if(missing(select)) select <- 1:data@M
 
@@ -45,12 +46,16 @@ setnames <- function(chains, name) {
 }
 
 
+#' @rdname Bias
+#' 
 setMethod("Bias", signature(x = "qibm"),
 function(x, ...) {
   with(x, mu - mu[ref], ...) %>% setnames("Bias")
 })
 
 
+#' @rdname CIndex
+#' 
 setMethod("CIndex", signature(x = "qibm"),
 function(x, ...) {
   with(x, {
@@ -69,6 +74,10 @@ function(x, ...) {
 })
 
 
+#' @rdname Cor
+#' 
+#' @param diag whether to include correlation matrix diagonals.
+#' 
 setMethod("Cor", signature(x = "qibm"),
 function(x, diag = FALSE, ...) {
   chains <- with(x, {
@@ -84,6 +93,8 @@ function(x, diag = FALSE, ...) {
 })
 
 
+#' @rdname GOF
+#' 
 setMethod("GOF", signature(x = "qibm"),
 function(x, ...) {
   chains <- with(x , c(gof.rep, gof.obs), ...)
@@ -99,8 +110,10 @@ function(x, alpha = 0.05) {
     describe(alpha = alpha)
 })
 
+#' @describeIn GOF Plot observed versus replicated goodness of fit quantities.
+#' 
 setMethod("plot", signature(x = "qibmGOF"),
-function(x, y, ...) {
+function(x) {
   data <- as.data.frame(as.matrix(x))
   
   vars <- names(data)
@@ -127,6 +140,8 @@ function(x, y, ...) {
 })
 
 
+#' @rdname ICC
+#' 
 setMethod("ICC", signature(x = "qibm"),
 function(x, ...) {
   with(x, {
@@ -137,12 +152,16 @@ function(x, ...) {
 })
 
 
+#' @rdname RC
+#' 
 setMethod("RC", signature(x = "qibm"),
 function(x, ...) {
   with(x, 2.77 * sigma.err, ...) %>% setnames("RC")
 })
 
 
+#' @rdname RDC
+#' 
 setMethod("RDC", signature(x = "qibm"),
 function(x, ...) {
   with(x, 2.77 * sqrt(sigma.opr^2 + sigma.imgopr^2 + sigma.err^2), ...) %>%
@@ -150,6 +169,8 @@ function(x, ...) {
 })
 
 
+#' @rdname wCV
+#' 
 setMethod("wCV", signature(x = "qibm"),
 function(x, ...) {
   with(x, {
@@ -159,6 +180,13 @@ function(x, ...) {
 })
 
 
+#' @rdname LRM
+#' 
+#' @param coef two-element vector specifying the logistic regression
+#'   intercept and slope with which to simulate outcomes.
+#' @param N scalar or vector of simulated sample sizes.
+#' @param seed random number seed for the simulations.
+#' 
 setMethod("LRM", signature(x = "qibm"),
 function(x, coef, N, seed = 123, ...) {
   set.seed(seed)
