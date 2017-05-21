@@ -105,9 +105,9 @@ function(x, ...) {
 
 setMethod("describe", signature(x = "qibmGOF"),
 function(x, alpha = 0.05) {
-  with(x, as.numeric(gof.rep >= gof.obs)) %>%
-    setnames("pval") %>%
-    describe(alpha = alpha)
+  chains <- with(x, as.numeric(gof.rep >= gof.obs), select = seq_along(x@select))
+  varnames(chains) <- paste0("pval[", x@select, "]")
+  describe(chains, alpha = alpha)
 })
 
 #' @describeIn GOF Plot observed versus replicated goodness of fit quantities.
