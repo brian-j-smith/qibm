@@ -261,9 +261,9 @@ function(x, alpha = 0.05, alternative = c("two.sided", "less", "greater"),
     Upper = or.hpd[2, ],
     RMSE = rmse,
     Power = stats[, 1],
-    Power.MCSE = stats[, 2],
+    Power.MCSE = sqrt(stats[, 2] / (niter(x) * nchain(x))),
     Coverage = stats[, 3],
-    Coverage.MCSE = stats[, 4],
+    Coverage.MCSE = sqrt(stats[, 4] / (niter(x) * nchain(x))),
     row.names = 1:nrow(id)
   )
 })

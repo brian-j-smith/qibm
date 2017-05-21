@@ -36,12 +36,12 @@ function(x, alpha = 0.05) {
 #' 
 setMethod("describe", signature(x = "mcmc.list"),
 function(x, alpha = 0.05) {
-  mcse <- sapply(x, coda:::safespec0) %>% apply(1, mean)
+  mcvar <- sapply(x, coda:::safespec0) %>% apply(1, mean)
   f <- function(x) c(mean(x), sd(x), hpd(x, alpha = alpha))
   stats <- as.matrix(x) %>%
     apply(2, f) %>%
     t %>%
-    cbind(mcse) %>%
+    cbind(sqrt(mcvar / (niter(x) * nchain(x)))) %>%
     as.data.frame %>%
     structure(names = c("Mean", "SD", "Lower", "Upper", "MCSE"))
   new("MCMCDescribe", stats, alpha = alpha)
