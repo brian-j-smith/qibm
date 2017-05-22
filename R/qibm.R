@@ -36,12 +36,9 @@
 #' \dontrun{
 #' data(hnc)
 #' 
-#' parms <- c("mu", "gamma.img", "Sigma.img", "sigma.opr", "sigma.imgopr", "sigma.err",
-#'            "gof.rep", "gof.obs")
-#' 
 #' fit <- qibm(log(Volume) ~ method, image = image, operator = operator,
-#'             data = hnc, parameters = parms,
-#'             n.burnin = 5000, n.iter = 10000, n.thin = 5, n.chains = 3)
+#'             data = hnc, n.burnin = 5000, n.iter = 10000, n.thin = 5,
+#'             n.chains = 3)
 #' 
 #' describe(with(fit, exp(mu)))
 #' describe(with(fit, exp(sqrt(diag(Sigma.img)))))
@@ -65,8 +62,9 @@
 #' }
 #' 
 qibm <- function(fixed, image, operator, data, priors = list(),
-                 parameters = c("mu", "Sigma.img", "sigma.opr", "sigma.imgopr",
-                                "sigma.err"),
+                 parameters = c("mu", "gamma.img", "Sigma.img", "sigma.opr",
+                                "sigma.imgopr", "sigma.err", "gof.rep",
+                                "gof.obs"),
                  n.burnin = 2500, n.iter = 10000, n.thin = 5, n.chains = 3,
                  seed = 123) {
   ### Set random number seed

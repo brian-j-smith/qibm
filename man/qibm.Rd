@@ -5,8 +5,9 @@
 \title{Quantitative Imaging Biomarker Model}
 \usage{
 qibm(fixed, image, operator, data, priors = list(), parameters = c("mu",
-  "Sigma.img", "sigma.opr", "sigma.imgopr", "sigma.err"), n.burnin = 2500,
-  n.iter = 10000, n.thin = 5, n.chains = 3, seed = 123)
+  "gamma.img", "Sigma.img", "sigma.opr", "sigma.imgopr", "sigma.err", "gof.rep",
+  "gof.obs"), n.burnin = 2500, n.iter = 10000, n.thin = 5, n.chains = 3,
+  seed = 123)
 }
 \arguments{
 \item{fixed}{fomula of the form \code{y ~ method} where \code{y} is a
@@ -46,12 +47,9 @@ imaging methods.
 \dontrun{
 data(hnc)
 
-parms <- c("mu", "gamma.img", "Sigma.img", "sigma.opr", "sigma.imgopr", "sigma.err",
-           "gof.rep", "gof.obs")
-
 fit <- qibm(log(Volume) ~ method, image = image, operator = operator,
-            data = hnc, parameters = parms,
-            n.burnin = 5000, n.iter = 10000, n.thin = 5, n.chains = 3)
+            data = hnc, n.burnin = 5000, n.iter = 10000, n.thin = 5,
+            n.chains = 3)
 
 describe(with(fit, exp(mu)))
 describe(with(fit, exp(sqrt(diag(Sigma.img)))))
