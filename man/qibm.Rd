@@ -22,7 +22,7 @@ vector of biomarker measurements, or a transformation thereof, and
 
 \item{priors}{list of prior parameter values.}
 
-\item{parameters}{vector naming the model parameters to be returned.}
+\item{parameters}{vector naming the model parameters to be returned (default: all).}
 
 \item{n.burnin}{number of MCMC samples to discard as a burn-in sequence.}
 
@@ -47,7 +47,7 @@ imaging methods.
 \dontrun{
 data(hnc)
 
-fit <- qibm(log(Volume) ~ method, image = image, operator = operator,
+fit <- qibm(log(Volume) ~ method, image = lesion, operator = operator,
             data = hnc, n.burnin = 5000, n.iter = 10000, n.thin = 5,
             n.chains = 3)
 
@@ -74,7 +74,8 @@ describe(fit.gof)
 
 }
 \seealso{
-\code{\link[=with.qibm]{with}},
+\code{\link{describe}},
+  \code{\link[=with.qibm]{with}},
   \code{\link{Bias}},
   \code{\link{CIndex}},
   \code{\link{Cor}},

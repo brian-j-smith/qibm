@@ -11,7 +11,7 @@
 #' @param operator quoted or unquoted name of a vector of operator identifiers.
 #' @param data data.frame containing the data vectors.
 #' @param priors list of prior parameter values.
-#' @param parameters vector naming the model parameters to be returned.
+#' @param parameters vector naming the model parameters to be returned (default: all).
 #' @param n.burnin number of MCMC samples to discard as a burn-in sequence.
 #' @param n.iter total number of samples to generate.
 #' @param n.thin period at which to save samples.
@@ -21,7 +21,9 @@
 #' @return A \code{qibm} object that inherits from \code{\link[coda]{mcmc.list}} and
 #'   contains the MCMC sampled model parameter values.
 #' 
-#' @seealso \code{\link[=with.qibm]{with}},
+#' @seealso
+#'   \code{\link{describe}},
+#'   \code{\link[=with.qibm]{with}},
 #'   \code{\link{Bias}},
 #'   \code{\link{CIndex}},
 #'   \code{\link{Cor}},
@@ -36,7 +38,7 @@
 #' \dontrun{
 #' data(hnc)
 #' 
-#' fit <- qibm(log(Volume) ~ method, image = image, operator = operator,
+#' fit <- qibm(log(Volume) ~ method, image = lesion, operator = operator,
 #'             data = hnc, n.burnin = 5000, n.iter = 10000, n.thin = 5,
 #'             n.chains = 3)
 #' 
