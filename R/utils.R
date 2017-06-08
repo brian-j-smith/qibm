@@ -22,6 +22,13 @@ logit <- function(x) log(x / (1 - x))
 
 invlogit <- function(x) 1 / (1 + exp(-x))
 
+LRMCoef <- function(OR, scale, p, x) {
+  coef <- rep(NA, 2)
+  coef[2] <- log(OR) / scale
+  coef[1] <- log(p / (1 - p)) - coef[2] * x
+  coef
+}
+
 
 #' @rdname describe
 #' 

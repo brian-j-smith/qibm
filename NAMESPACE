@@ -9,7 +9,8 @@ importFrom("plyr", ".", "ddply", "summarize")
 
 export(
   "qibm",
-  "with.qibm"
+  "with.qibm",
+  "LRMCoef"
 )
 
 exportMethods(
