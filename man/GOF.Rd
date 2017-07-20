@@ -4,6 +4,7 @@
 \name{GOF}
 \alias{GOF}
 \alias{GOF,qibm-method}
+\alias{describe,qibmGOF-method}
 \alias{plot,qibmGOF-method}
 \title{Model Goodness of Fit}
 \usage{
@@ -11,12 +12,16 @@ GOF(x, ...)
 
 \S4method{GOF}{qibm}(x, ...)
 
+\S4method{describe}{qibmGOF}(x, alpha = 0.05)
+
 \S4method{plot}{qibmGOF}(x)
 }
 \arguments{
 \item{x}{an \R object.}
 
 \item{...}{further arguments passed to \code{\link{with}}.}
+
+\item{alpha}{tail probabilities for credible intervals.}
 }
 \description{
 Model Goodness of Fit

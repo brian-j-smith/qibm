@@ -223,8 +223,8 @@ qibm <- function(fixed, image, operator, data, priors = list(),
   "
   
   ### Model fit
-  chains <- jags.model(textConnection(qibm.jags), model.data, inits, n.chains) %>%
-    coda.samples(parameters, n.iter, n.thin) %>%
+  chains <- rjags::jags.model(textConnection(qibm.jags), model.data, inits, n.chains) %>%
+    rjags::coda.samples(parameters, n.iter, n.thin) %>%
     window(n.burnin + 1)
   new("qibm", chains, M = model.data$methodN)
 }

@@ -103,6 +103,10 @@ function(x, ...) {
   new("qibmGOF", chains)
 })
 
+#' @rdname GOF
+#' 
+#' @param alpha tail probabilities for credible intervals.
+#' 
 setMethod("describe", signature(x = "qibmGOF"),
 function(x, alpha = 0.05) {
   chains <- with(x, as.numeric(gof.rep >= gof.obs), select = seq_along(x@select))
@@ -187,6 +191,8 @@ function(x, ...) {
 #' @param N scalar or vector of simulated sample sizes.
 #' @param seed random number seed for the simulations.
 #' 
+#' @seealso \code{\link{LRMCoef}}.
+#' 
 setMethod("LRM", signature(x = "qibm"),
 function(x, coef, N, seed = 123, ...) {
   set.seed(seed)
@@ -213,6 +219,12 @@ function(x, coef, N, seed = 123, ...) {
   c(fit$coef[2], chol2inv(fit$qr$qr)[2, 2])
 }
 
+#' @rdname LRM
+#' 
+#' @param alpha significance for statistical testing of the odds ratio.
+#' @param alternative direction of the alternative hypothesis.
+#' @param scale value at which to compute the odds ratio
+#' 
 setMethod("describe", signature(x = "qibmLRM"),
 function(x, alpha = 0.05, alternative = c("two.sided", "less", "greater"),
          scale = 1) {

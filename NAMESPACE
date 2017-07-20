@@ -1,11 +1,16 @@
-import("coda", "ggplot2", "methods", "rjags", "R6")
+import("coda", "ggplot2", "methods", "R6")
 
 importFrom("graphics", "plot")
 importFrom("Hmisc", "rcorr.cens")
 importFrom("magrittr", "%>%")
 importFrom("mvtnorm", "rmvnorm")
 importFrom("plyr", ".", "ddply", "summarize")
+importFrom("stats", "binomial", "glm.fit", "model.frame",
+             "model.response", "na.omit", "qnorm", "reshape", "rnorm",
+             "runif", "sd", "start", "terms", "var", "window", "xtabs")
+importFrom("utils", "head", "tail")
 
+S3method(with, qibm)
 
 export(
   "qibm",

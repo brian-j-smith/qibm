@@ -22,6 +22,19 @@ logit <- function(x) log(x / (1 - x))
 
 invlogit <- function(x) 1 / (1 + exp(-x))
 
+
+#' Logistic Regression Intercept and Slope
+#' 
+#' Derive the intercept and slope for a logistic regression model at a specified
+#' odds ratio and event probability.
+#'
+#' @param OR odds ratio for which to derive the intercept and slope.
+#' @param scale unit increase in \code{x} to which the \code{OR} corresponds.
+#' @param p event probability at \code{x}.
+#' @param x value of the predictor variable to which \code{p} corresponds.
+#' 
+#' @seealso \code{\link{LRM}}.
+#' 
 LRMCoef <- function(OR, scale, p, x) {
   coef <- rep(NA, 2)
   coef[2] <- log(OR) / scale
