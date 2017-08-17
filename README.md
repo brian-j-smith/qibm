@@ -13,4 +13,7 @@ library(devtools)
 install_github("brian-j-smith/qibm")
 ```
 
+[JAGS](http://mcmc-jags.sourceforge.net/) is also required and must be installed separately.
+
 The package has been successfully tested on 64-bit versions of **R** for Windows.  32-bit versions of **R** have exhibited crashes and thus are not recommended for use with the package at this time.
+
