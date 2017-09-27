@@ -1,6 +1,6 @@
 Package: qibm
-Version: 0.1-2
-Date: 2017-07-20
+Version: 0.2-1
+Date: 2017-09-26
 Title: Quantitative imaging biomarker modeling
 Authors@R: person("Brian J", "Smith", role = c("aut", "cre"), email = "brian-j-smith@uiowa.edu")
 Maintainer: Brian J Smith <brian-j-smith@uiowa.edu>

@@ -20,7 +20,7 @@ vector of biomarker measurements, or a transformation thereof, and
 
 \item{data}{data.frame containing the data vectors.}
 
-\item{priors}{list of prior parameter values.}
+\item{priors}{list of prior parameter values.  See Details section below for list element names and defaults.}
 
 \item{parameters}{vector naming the model parameters to be returned (default: all).}
 
@@ -43,10 +43,30 @@ A \code{qibm} object that inherits from \code{\link[coda]{mcmc.list}} and
 comparison of biomarker measurements derived from different quantitative
 imaging methods.
 }
+\details{
+Prior distribution hyperprameters may be specified through the following list elements of the \code{priors} argument.
+\describe{
+  \item{mu.mean}{Normal mean for mu parameters (default: 0).}
+  \item{mu.var}{Normal variance for mu paraemters (defaul: 1e6).}
+  \item{sigma2.opr.shape}{Inverse-gamma shape for inter-operator variance parameters (default: 1e-3).}
+  \item{sigma2.opr.rate}{Inverse-gamma rate for inter-operator variance parameters (default: 1e-3).}
+  \item{sigma.opr.lim}{Two-element vector of uniform minimum and maximum for inter-operator standard deviation parameters (default: inverse-gamma distribution).}
+  \item{sigma2.imgopr.shape}{Inverse-gamma shape for image-by-operator variance parameters (default: 1e-3).}
+  \item{sigma2.imgopr.rate}{Inverse-gamma rate for image-by-operator variance parameters (default: 1e-3).}
+  \item{sigma.imgopr.lim}{Two-element vector of uniform minimum and maximum for image-by-operator standard deviation parameters (default: inverse-gamma distribution).}
+  \item{sigma2.err.shape}{Inverse-gamma shape for intra-opearator error variance parameters (default: 1e-3).}
+  \item{sigma2.err.rate}{Inverse-gamma rate for intra-opearator error variance parameters (default: 1e-3).}
+  \item{sigma.err.lim}{Two-element vector of uniform minimum and maximum for intra-opearator standard deviation  parameters (default: inverse-gamma distribution).}
+  \item{Sigma.img.cor}{Scalar pairwise correlation in the correlation matrix defining an inverse-Wishart scale matrix for between-image and method variances (default: 0).}
+  \item{Sigma.img.scale}{Scalar multiple of the correlation matrix defining an inverse-Wishart scale matrix for between-image and method variances (default: 1).}
+  \item{Sigma.img.df}{Inverse-Wishart degrees of freedom for between-image and method variances (default: number of methods).}
+}
+}
 \examples{
 \dontrun{
 data(hnc)
 
+## Default prior distributions
 fit <- qibm(log(Volume) ~ method, image = lesion, operator = operator,
             data = hnc, n.burnin = 5000, n.iter = 10000, n.thin = 5,
             n.chains = 3)
@@ -70,6 +90,14 @@ describe(RC(fit))
 fit.gof <- GOF(fit)
 plot(fit.gof)
 describe(fit.gof)
+
+
+## User-specified Uniform(0, 2) priors on standard deviation parameters
+fit2 <- qibm(log(Volume) ~ method, image = lesion, operator = operator,
+             data = hnc, n.burnin = 5000, n.iter = 10000, n.thin = 5,
+             n.chains = 3, priors = list(sigma.opr.lim = c(0, 2),
+                                         sigma.imgopr.lim = c(0, 2),
+                                         sigma.err.lim = c(0, 2)))
 }
 
 }
