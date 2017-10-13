@@ -78,12 +78,11 @@ describe(with(fit, exp(sigma.err)))
 
 describe(Cor(fit))
 
-describe(Bias(fit))
-describe(with(fit, exp(mu) - exp(mu[1])))
+describe(Bias(fit, log = TRUE))
 describe(CIndex(fit))
 describe(ICC(fit))
 
-describe(wCV(fit))
+describe(wCV(fit, log = TRUE))
 describe(RDC(fit))
 describe(RC(fit))
 

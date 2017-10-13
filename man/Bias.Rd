@@ -8,11 +8,12 @@
 \usage{
 Bias(x, ...)
 
-\S4method{Bias}{qibm}(x, ...)
+\S4method{Bias}{qibm}(x, type = c("absolute", "relative", "percent"), log = FALSE, ...)
 }
 \arguments{
 \item{x}{an \R object.}
-
+\item{type}{type of bias to compute.}
+\item{log}{whether to compute bias on the original scale for models fit to log-transformed measurements.}
 \item{...}{further arguments passed to \code{\link{with}}.}
 }
 \description{

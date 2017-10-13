@@ -8,11 +8,11 @@
 \usage{
 wCV(x, ...)
 
-\S4method{wCV}{qibm}(x, ...)
+\S4method{wCV}{qibm}(x, log = FALSE, ...)
 }
 \arguments{
 \item{x}{an \R object.}
-
+\item{log}{whether to compute the coefficient on the original scale for models fit to log-transformed measurements.}
 \item{...}{further arguments passed to \code{\link{with}}.}
 }
 \description{

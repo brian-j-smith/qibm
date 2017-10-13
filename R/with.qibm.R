@@ -49,8 +49,16 @@ setnames <- function(chains, name) {
 #' @rdname Bias
 #' 
 setMethod("Bias", signature(x = "qibm"),
-function(x, ...) {
-  with(x, mu - mu[ref], ...) %>% setnames("Bias")
+function(x, type = c("absolute", "relative", "percent"), log = FALSE, ...) {
+  type <- match.arg(type)
+  with(x, {
+    x <- if(log) exp(mu) else mu
+    switch(type,
+      "absolute" = x - x[ref],
+      "relative" = x / x[ref] - 1,
+      "percent" = 100 * (x / x[ref] - 1)
+    )
+  }, log = log, type = type, ...) %>% setnames("Bias")
 })
 
 
@@ -176,11 +184,15 @@ function(x, ...) {
 #' @rdname wCV
 #' 
 setMethod("wCV", signature(x = "qibm"),
-function(x, ...) {
+function(x, log = FALSE, ...) {
   with(x, {
     sigma2.within <- sigma.opr^2 + sigma.imgopr^2 + sigma.err^2
-    sqrt(exp(sigma2.within) - 1)
-  }, ...) %>% setnames("wCV")
+    if(log) {
+      sqrt(exp(sigma2.within) - 1)
+    } else {
+      sqrt(sigma2.within) / mu
+    }
+  }, log = log, ...) %>% setnames("wCV")
 })
 
 
