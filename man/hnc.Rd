@@ -18,7 +18,7 @@ hnc
 }
 \description{
 A dataset containing tumor volumes derived from different segmentation
-methods applied to PET imaging scans of cacerous head and neck lesions by
+methods applied to PET imaging scans of cancerous head and neck lesions by
 institutions participating in a challenge conducted by the NCI Quantitative
 Imaging Network (QIN).
 }
